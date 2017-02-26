@@ -1,3 +1,4 @@
+from IPython import embed
 """This file contains all the classes you must complete for this project.
 
 You can use the test cases in agent_test.py to help during development, and
@@ -80,6 +81,12 @@ class CustomPlayer:
         self.time_left = None
         self.TIMER_THRESHOLD = timeout
 
+    def mm_or_ab(self, game, depth):
+        if self.method == 'minimax':
+            return self.minimax(game, depth)
+        else:
+            return self.alphabeta(game, depth)
+
     def get_move(self, game, legal_moves, time_left):
         """Search for the best move from the available legal moves and return a
         result before the time limit expires.
@@ -118,25 +125,33 @@ class CustomPlayer:
 
         self.time_left = time_left
 
-        # TODO: finish this function!
+        if len(game.get_legal_moves(self)) == 0: return (-1, -1)
+        if self.search_depth <= 0: self.iterative = True
+        
+        best_move = (None, (-1, -1))
 
         # Perform any required initializations, including selecting an initial
         # move from the game board (i.e., an opening book), or returning
         # immediately if there are no legal moves
-
         try:
             # The search method call (alpha beta or minimax) should happen in
             # here in order to avoid timeout. The try/except block will
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
-            pass
+            if self.iterative:
+                grid_size = game.width * game.height
+                for depth in range(1, grid_size):
+                    best_move = self.mm_or_ab(game, depth)
+                    if best_move[0] == float("inf"):
+                        break
+            else:
+                best_move = self.mm_or_ab(game, self.search_depth)
 
         except Timeout:
-            # Handle any actions required at timeout, if necessary
-            pass
+            return best_move[1]
 
         # Return the best move from the last completed search iteration
-        raise NotImplementedError
+        return best_move[1]
 
     def minimax(self, game, depth, maximizing_player=True):
         """Implement the minimax search algorithm as described in the lectures.
@@ -172,8 +187,18 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        scores_and_moves = set()
+        player_perspective = self if maximizing_player else game.get_opponent(self)
+        
+        if len(game.get_legal_moves(player_perspective)) == 0:
+            return (game.utility(self),(-1,-1))
+
+        for move in game.get_legal_moves(player_perspective):
+            score,child_move = (self.score(game.forecast_move(move),self),move) if depth == 1 else self.minimax(game.forecast_move(move), depth-1, not maximizing_player)
+            scores_and_moves.add((score, move))
+        
+        return max(scores_and_moves) if maximizing_player else min(scores_and_moves)
+
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
         """Implement minimax search with alpha-beta pruning as described in the
@@ -216,5 +241,25 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        scores_and_moves = set()
+        player_perspective = self if maximizing_player else game.get_opponent(self)
+
+        if len(game.get_legal_moves(player_perspective)) == 0:
+            return (game.utility(self),(-1,-1))
+        
+        for move in game.get_legal_moves(player_perspective):
+            if depth == 1:
+                score = self.score(game.forecast_move(move), self)
+                child_move = move
+            else:
+                score, child_move = self.alphabeta(game.forecast_move(move), depth-1, alpha, beta, not maximizing_player)
+            if maximizing_player:
+                if score >= beta:
+                    return (score,move)
+                alpha = max(score, alpha)
+            else:
+                if score <= alpha:
+                    return (score,move)
+                beta = min(score, beta)
+            scores_and_moves.add((score,move))
+        return max(scores_and_moves) if maximizing_player else min(scores_and_moves)
