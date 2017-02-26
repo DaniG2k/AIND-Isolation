@@ -82,10 +82,7 @@ class CustomPlayer:
         self.TIMER_THRESHOLD = timeout
 
     def mm_or_ab(self, game, depth):
-        if self.method == 'minimax':
-            return self.minimax(game, depth)
-        else:
-            return self.alphabeta(game, depth)
+        return self.minimax(game, depth) if self.method == 'minimax' else self.alphabeta(game, depth)
 
     def get_move(self, game, legal_moves, time_left):
         """Search for the best move from the available legal moves and return a
@@ -139,17 +136,14 @@ class CustomPlayer:
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
             if self.iterative:
-                grid_size = game.width * game.height
-                for depth in range(1, grid_size):
+                for depth in range(1, game.width * game.height):
                     best_move = self.mm_or_ab(game, depth)
-                    if best_move[0] == float("inf"):
-                        break
+                    if best_move[0] == float("inf"): break
             else:
                 best_move = self.mm_or_ab(game, self.search_depth)
 
         except Timeout:
             return best_move[1]
-
         # Return the best move from the last completed search iteration
         return best_move[1]
 
@@ -253,13 +247,12 @@ class CustomPlayer:
                 child_move = move
             else:
                 score, child_move = self.alphabeta(game.forecast_move(move), depth-1, alpha, beta, not maximizing_player)
+            
             if maximizing_player:
-                if score >= beta:
-                    return (score,move)
+                if score >= beta: return (score,move)
                 alpha = max(score, alpha)
             else:
-                if score <= alpha:
-                    return (score,move)
+                if score <= alpha: return (score,move)
                 beta = min(score, beta)
             scores_and_moves.add((score,move))
         return max(scores_and_moves) if maximizing_player else min(scores_and_moves)
