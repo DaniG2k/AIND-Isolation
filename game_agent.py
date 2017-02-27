@@ -1,4 +1,3 @@
-from IPython import embed
 """This file contains all the classes you must complete for this project.
 
 You can use the test cases in agent_test.py to help during development, and
@@ -136,7 +135,8 @@ class CustomPlayer:
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
             if self.iterative:
-                for depth in range(1, game.width * game.height):
+                grid_size = game.width * game.height
+                for depth in range(1, grid_size):
                     best_move = self.mm_or_ab(game, depth)
                     if best_move[0] == float("inf"): break
             else:
@@ -182,12 +182,12 @@ class CustomPlayer:
             raise Timeout()
 
         scores_and_moves = set()
-        player_perspective = self if maximizing_player else game.get_opponent(self)
+        player = self if maximizing_player else game.get_opponent(self)
         
-        if len(game.get_legal_moves(player_perspective)) == 0:
+        if len(game.get_legal_moves(player)) == 0:
             return (game.utility(self),(-1,-1))
 
-        for move in game.get_legal_moves(player_perspective):
+        for move in game.get_legal_moves(player):
             score,child_move = (self.score(game.forecast_move(move),self),move) if depth == 1 else self.minimax(game.forecast_move(move), depth-1, not maximizing_player)
             scores_and_moves.add((score, move))
         
@@ -236,12 +236,12 @@ class CustomPlayer:
             raise Timeout()
 
         scores_and_moves = set()
-        player_perspective = self if maximizing_player else game.get_opponent(self)
+        player = self if maximizing_player else game.get_opponent(self)
 
-        if len(game.get_legal_moves(player_perspective)) == 0:
+        if len(game.get_legal_moves(player)) == 0:
             return (game.utility(self),(-1,-1))
         
-        for move in game.get_legal_moves(player_perspective):
+        for move in game.get_legal_moves(player):
             if depth == 1:
                 score = self.score(game.forecast_move(move), self)
                 child_move = move
