@@ -13,7 +13,6 @@ class Timeout(Exception):
     """Subclass base exception for code clarity."""
     pass
 
-
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
@@ -36,10 +35,9 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-
-    # TODO: finish this function!
-    raise NotImplementedError
-
+    player1_moves = len(game.get_legal_moves(player))
+    player2_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return float(player1_moves - (player2_moves * 2))
 
 class CustomPlayer:
     """Game-playing agent that chooses a move using your evaluation function
@@ -81,6 +79,7 @@ class CustomPlayer:
         self.TIMER_THRESHOLD = timeout
 
     def mm_or_ab(self, game, depth):
+        # Helper method for selecting minimax or alphabeta pruning.
         return self.minimax(game, depth) if self.method == 'minimax' else self.alphabeta(game, depth)
 
     def get_move(self, game, legal_moves, time_left):
