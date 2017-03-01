@@ -188,11 +188,11 @@ class CustomPlayer:
 
         scores_and_moves = set()
         player = self if maximizing_player else game.get_opponent(self)
-        
-        if len(game.get_legal_moves(player)) == 0:
+        legal_moves = game.get_legal_moves(player)
+        if len(legal_moves) == 0:
             return (game.utility(self),(-1,-1))
 
-        for move in game.get_legal_moves(player):
+        for move in legal_moves:
             score,child_move = (self.score(game.forecast_move(move),self),move) if depth == 1 else self.minimax(game.forecast_move(move), depth-1, not maximizing_player)
             scores_and_moves.add((score, move))
         
@@ -242,11 +242,11 @@ class CustomPlayer:
 
         scores_and_moves = set()
         player = self if maximizing_player else game.get_opponent(self)
-
-        if len(game.get_legal_moves(player)) == 0:
+        legal_moves = game.get_legal_moves(player)
+        if len(legal_moves) == 0:
             return (game.utility(self),(-1,-1))
         
-        for move in game.get_legal_moves(player):
+        for move in legal_moves:
             if depth == 1:
                 score = self.score(game.forecast_move(move), self)
                 child_move = move
