@@ -8,10 +8,80 @@ relative strength using tournament.py and include the results in your report.
 """
 import random
 
-
 class Timeout(Exception):
     """Subclass base exception for code clarity."""
     pass
+
+def heuristic_score_num_moves(game, player):
+    if game.is_loser(player):
+        return float("-inf")
+        
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return float(own_moves - (2 * opponent_moves))
+
+def heuristic_score_center_proximity(game, player):
+    """A heuristic score that returns a given player's proximity to the
+    center of the board. The intuition here is that players who are closest
+    to the center have the greatest amount of mobility. Players near the
+    edges are intrinsically constrained by the board.
+
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : hashable
+        One of the objects registered by the game object as a valid player.
+        (i.e., `player` should be either game.__player_1__ or
+        game.__player_2__).
+
+    Returns
+    ----------
+    float
+        The heuristic value of the current game state
+    """
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    player_pos = game.get_player_location(player)
+    center = [game.width / 2.0, game.height / 2.0]
+    return float(abs(player_pos[0] - center[0]) + abs(player_pos[1] - center[1]))
+
+def heuristic_score_2(game, player):
+    """The basic evaluation function described in lecture that outputs a score
+    equal to the number of moves open for your computer player on the board.
+
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : hashable
+        One of the objects registered by the game object as a valid player.
+        (i.e., `player` should be either game.__player_1__ or
+        game.__player_2__).
+
+    Returns
+    ----------
+    float
+        The heuristic value of the current game state
+    """
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    return float(len(game.get_legal_moves(player)))
 
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -35,15 +105,8 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    if game.is_loser(player):
-        return float("-inf")
-        
-    if game.is_winner(player):
-        return float("inf")
-
-    own_moves = len(game.get_legal_moves(player))
-    opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return float(own_moves - (2 * opponent_moves))
+    heuristic_score_num_moves(game, player)
+    
 
 class CustomPlayer:
     """Game-playing agent that chooses a move using your evaluation function
@@ -189,6 +252,7 @@ class CustomPlayer:
         scores_and_moves = set()
         player = self if maximizing_player else game.get_opponent(self)
         legal_moves = game.get_legal_moves(player)
+
         if len(legal_moves) == 0:
             return (game.utility(self),(-1,-1))
 
@@ -243,6 +307,7 @@ class CustomPlayer:
         scores_and_moves = set()
         player = self if maximizing_player else game.get_opponent(self)
         legal_moves = game.get_legal_moves(player)
+        
         if len(legal_moves) == 0:
             return (game.utility(self),(-1,-1))
         
