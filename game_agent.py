@@ -13,13 +13,29 @@ class Timeout(Exception):
     pass
 
 def heuristic_score_num_moves(game, player):
-    if game.is_loser(player):
-        return float("-inf")
-    if game.is_winner(player):
-        return float("inf")
+    """Outputs a heuristic score equal to the difference in current
+    player's available moves and two times the opponent's available
+    moves.
 
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+    
+    player : hashable
+        One of the objects registered by the game object as a valid player.
+        (i.e., `player` should be either game.__player_1__ or
+        game.__player_2__).
+    
+    Returns
+    ----------
+    float
+        The heuristic value of the current game state
+    """
     own_moves = len(game.get_legal_moves(player))
     opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
     return float(own_moves - (2 * opponent_moves))
 
 def heuristic_score_center_proximity(game, player):
@@ -44,18 +60,14 @@ def heuristic_score_center_proximity(game, player):
     float
         The heuristic value of the current game state
     """
-    if game.is_loser(player):
-        return float("-inf")
-    if game.is_winner(player):
-        return float("inf")
-
     player_pos = game.get_player_location(player)
     center = [game.width / 2.0, game.height / 2.0]
+
     return float(abs(player_pos[0] - center[0]) + abs(player_pos[1] - center[1]))
 
-def heuristic_score_2(game, player):
-    """The basic evaluation function described in lecture that outputs a score
-    equal to the number of moves open for your computer player on the board.
+def heuristic_score_mobility(game, player):
+    """The difference in player mobility plus the difference of the sum of 
+    potential moves.
 
     Parameters
     ----------
@@ -73,12 +85,11 @@ def heuristic_score_2(game, player):
     float
         The heuristic value of the current game state
     """
-    if game.is_loser(player):
-        return float("-inf")
-    if game.is_winner(player):
-        return float("inf")
-        
-    return float(len(game.get_legal_moves(player)))
+    own_moves = game.get_legal_moves(player)
+    opponent_moves = game.get_legal_moves(game.get_opponent(player))
+    own_mobility = float(sum([len(game.__get_moves__(move)) for move in own_moves ]))
+    opponent_mobility = float(sum([len(game.__get_moves__(move)) for move in opponent_moves ]))
+    return (own_mobility - opponent_mobility) + (len(own_moves) - len(opponent_moves))
 
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -102,7 +113,11 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    return heuristic_score_num_moves(game, player)
+    if game.is_loser(player):
+        return float("-inf")
+    if game.is_winner(player):
+        return float("inf")
+    return heuristic_score_mobility(game, player)
     
 
 class CustomPlayer:
