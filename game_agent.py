@@ -15,7 +15,6 @@ class Timeout(Exception):
 def heuristic_score_num_moves(game, player):
     if game.is_loser(player):
         return float("-inf")
-        
     if game.is_winner(player):
         return float("inf")
 
@@ -47,7 +46,6 @@ def heuristic_score_center_proximity(game, player):
     """
     if game.is_loser(player):
         return float("-inf")
-
     if game.is_winner(player):
         return float("inf")
 
@@ -77,10 +75,9 @@ def heuristic_score_2(game, player):
     """
     if game.is_loser(player):
         return float("-inf")
-
     if game.is_winner(player):
         return float("inf")
-
+        
     return float(len(game.get_legal_moves(player)))
 
 def custom_score(game, player):
@@ -105,7 +102,7 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    heuristic_score_num_moves(game, player)
+    return heuristic_score_num_moves(game, player)
     
 
 class CustomPlayer:
