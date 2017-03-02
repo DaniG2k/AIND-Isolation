@@ -91,34 +91,6 @@ def heuristic_score_mobility(game, player):
     opponent_mobility = float(sum([len(game.__get_moves__(move)) for move in opponent_moves ]))
     return (own_mobility - opponent_mobility) + (len(own_moves) - len(opponent_moves))
 
-def heuristic_score_expanded_grid(game, player):
-    """A heuristic score that expands the grid to twice its size. Each player's
-    potential moves are multiplied times the expanded grid, and their difference
-    is returned. The intuition here is that a larger grid would potentially
-    offer the players higher chances of success during gameplay. With that in mind,
-    a heuristic is offered as to who would win under those conditions.
-
-    Parameters
-    ----------
-    game : `isolation.Board`
-        An instance of `isolation.Board` encoding the current state of the
-        game (e.g., player locations and blocked cells).
-
-    player : hashable
-        One of the objects registered by the game object as a valid player.
-        (i.e., `player` should be either game.__player_1__ or
-        game.__player_2__).
-
-    Returns
-    ----------
-    float
-        The heuristic value of the current game state
-    """
-    expanded_grid = (game.width * game.height) * 2
-    own_moves = game.get_legal_moves(player)
-    opponent_moves = game.get_legal_moves(game.get_opponent(player))
-    return float(abs((len(own_moves) * expanded_grid) - (len(opponent_moves) * expanded_grid)))
-
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
